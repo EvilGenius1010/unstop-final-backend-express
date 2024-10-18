@@ -13,7 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Login;
+exports.sendOTP = sendOTP;
 const prisma_1 = __importDefault(require("../utils/prisma"));
+const accountSID = process.env.ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilio = require('twilio');
+const client = twilio(accountSID, authToken);
 function Login(phone_no, name) {
     return __awaiter(this, void 0, void 0, function* () {
         //   const checkUserExists = await prisma.user.findUnique({
@@ -40,5 +45,18 @@ function Login(phone_no, name) {
             });
         }
         return checkUserExists;
+    });
+}
+function sendOTP(phone_no) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let sendOTP = client.messages
+            .create({
+            body: 'Hello from twilio-node',
+            to: '+918859900177', // Text your number
+            from: '+917558483544'
+        })
+            .then((message) => console.log(message.sid));
+        console.log(sendOTP.body);
+        return sendOTP.body;
     });
 }

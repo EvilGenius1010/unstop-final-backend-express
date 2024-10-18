@@ -1,8 +1,10 @@
 const express = require('express')
 const app = express()
 const PORT = process.env.PORT || 3000
-import Login from "./routes/login"
+import Login, { sendOTP } from "./routes/login"
 import { Request, Response } from "express"
+import GetOptimumRoutes from "./routes/optimumroutes"
+import { console } from "node:inspector/promises"
 app.use(express.json())
 
 app.use((req: Request, res: Response, next: any) => {
@@ -33,10 +35,30 @@ app.use((req: Request, res: Response, next: any) => {
 app.post('/login', async (req: Request, res: Response) => {
   const phone_no = req.body.phone_no
   const name = req.body.name
-  let statusa = Login(phone_no, name);
+  let statusa = await Login(phone_no, name);
 
   res.json({
     msg: statusa
+  })
+})
+
+app.post('/optimumroutes', async (req: Request, res: Response) => {
+  const origin = req.body.origin;
+  const destination = req.body.destination
+  const travelModes = req.body.travelModes
+  let abc = await GetOptimumRoutes(origin, destination)
+
+  console.log(abc)
+  res.json({
+    msg: abc
+  })
+})
+
+app.post('/sendOTP', async (req: Request, res: Response) => {
+  let check1 = await sendOTP('7558483544')
+
+  res.json({
+    msg: check1
   })
 })
 
