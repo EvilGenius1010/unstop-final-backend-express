@@ -42,6 +42,8 @@ const login_1 = __importStar(require("./routes/login"));
 const optimumroutes_1 = __importDefault(require("./routes/optimumroutes"));
 const promises_1 = require("node:inspector/promises");
 const googleparking_1 = __importDefault(require("./routes/googleparking"));
+const stringToLatLong_1 = __importDefault(require("./utils/stringToLatLong"));
+const neareststn_1 = __importDefault(require("./routes/neareststn"));
 app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -88,20 +90,43 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 }));
-app.post('/sendOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const phone_no = req.body.phone_no;
-    let check1 = yield (0, login_1.sendOTP)(phone_no);
-    res.json({
-        msg: check1
-    });
+app.post('/neareststn', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const lat = req.body.lat;
+    const long = req.body.long;
+    try {
+        let neareststn = yield (0, neareststn_1.default)(lat, long);
+        res.json({
+            msg: neareststn
+        });
+    }
+    catch (err) {
+        promises_1.console.log(`Serverside error ${err}`);
+    }
 }));
 app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const otp = req.body.otp;
     const phone_no = req.body.phone_no;
-    let check1 = yield (0, login_1.verifyOTP)(otp, phone_no);
-    res.json({
-        msg: check1
-    });
+    try {
+        let check1 = yield (0, login_1.verifyOTP)(otp, phone_no);
+        res.json({
+            msg: check1
+        });
+    }
+    catch (err) {
+        promises_1.console.log(`Serverside error is ${err}`);
+    }
+}));
+app.post('/convertaddr', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const addr = req.body.addr;
+    try {
+        const getLatLongitude = yield (0, stringToLatLong_1.default)(addr);
+        res.json({
+            msg: getLatLongitude
+        });
+    }
+    catch (err) {
+        promises_1.console.log(`Serverside error is ${err}`);
+    }
 }));
 app.post('/getparking', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const location = req.body.location;
