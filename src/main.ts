@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const PORT = process.env.PORT || 3000
-import Login, { sendOTP } from "./routes/login"
+import Login, { sendOTP, verifyOTP } from "./routes/login"
 import { Request, Response } from "express"
 import GetOptimumRoutes from "./routes/optimumroutes"
 import { console } from "node:inspector/promises"
@@ -55,12 +55,24 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
 })
 
 app.post('/sendOTP', async (req: Request, res: Response) => {
-  let check1 = await sendOTP('7558483544')
+  const phone_no = req.body.phone_no
+  let check1 = await sendOTP(phone_no)
 
   res.json({
     msg: check1
   })
 })
+
+app.post('/verifyOTP', async (req: Request, res: Response) => {
+  const otp = req.body.otp
+  const phone_no = req.body.phone_no
+  let check1 = await verifyOTP(otp, phone_no)
+
+  res.json({
+    msg: check1
+  })
+}
+)
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`)

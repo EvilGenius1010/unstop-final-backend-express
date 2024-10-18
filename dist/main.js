@@ -72,7 +72,16 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
     });
 }));
 app.post('/sendOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let check1 = yield (0, login_1.sendOTP)('7558483544');
+    const phone_no = req.body.phone_no;
+    let check1 = yield (0, login_1.sendOTP)(phone_no);
+    res.json({
+        msg: check1
+    });
+}));
+app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const otp = req.body.otp;
+    const phone_no = req.body.phone_no;
+    let check1 = yield (0, login_1.verifyOTP)(otp, phone_no);
     res.json({
         msg: check1
     });

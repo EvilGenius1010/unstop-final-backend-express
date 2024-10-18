@@ -32,7 +32,7 @@ function GetOptimumRoutes(origin, destination, travelMode) {
         };
         const getres = yield axios_1.default.post(COMPUTEROUTESAPI, reqbody, {
             headers: {
-                "X-Goog-FieldMask": "routes.duration,routes.distanceMeters",
+                "X-Goog-FieldMask": "routes.duration,routes.distanceMeters,routes.polyline",
                 "X-Goog-Api-Key": process.env.GCP_MAPS_API,
                 "Content-Type": "application/json"
             }
@@ -43,5 +43,6 @@ function GetOptimumRoutes(origin, destination, travelMode) {
 function findNearestMetroStation() {
     return __awaiter(this, void 0, void 0, function* () {
         // const
+        const purpleLineMetroStns = ["Nagasandra", "Dasarahalli", "Jalahalli", "Peenya INdustry", "Peenya", "Goreguntepalya", "Yeshwantpur", "Sampige Road",];
     });
 }

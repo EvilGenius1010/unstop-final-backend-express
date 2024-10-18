@@ -14,11 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Login;
 exports.sendOTP = sendOTP;
+exports.verifyOTP = verifyOTP;
 const prisma_1 = __importDefault(require("../utils/prisma"));
 const accountSID = process.env.ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilio = require('twilio');
 const client = twilio(accountSID, authToken);
+const SERVICE_SID = "VAfa0e7ebb8ed5d2b72df66c7e785515d3";
 function Login(phone_no, name) {
     return __awaiter(this, void 0, void 0, function* () {
         //   const checkUserExists = await prisma.user.findUnique({
@@ -49,14 +51,35 @@ function Login(phone_no, name) {
 }
 function sendOTP(phone_no) {
     return __awaiter(this, void 0, void 0, function* () {
-        let sendOTP = client.messages
-            .create({
-            body: 'Hello from twilio-node',
-            to: '+918859900177', // Text your number
-            from: '+917558483544'
-        })
-            .then((message) => console.log(message.sid));
-        console.log(sendOTP.body);
-        return sendOTP.body;
+        // let sendOTP = client.messages
+        //   .create({
+        //
+        //     body: 'Hello from twilio-node',
+        //     to: '+918859900177', // Text your number
+        //     from: '+917558483544'
+        //   })
+        //   .then((message: any) => console.log(message.sid));
+        // console.log(sendOTP.body)
+        // return sendOTP.body
+        const otpResponse = yield client.verify.v2
+            .services(SERVICE_SID)
+            .verifications.create({
+            channel: "sms",
+            to: phone_no,
+        });
+        console.log(otpResponse);
+        return otpResponse.body;
+    });
+}
+function verifyOTP(otp, phone_no) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const verificationCheck = yield client.verify.v2
+            .services(SERVICE_SID)
+            .verificationChecks.create({
+            code: otp,
+            to: phone_no,
+        });
+        console.log(verificationCheck.status);
+        return verificationCheck.status;
     });
 }
