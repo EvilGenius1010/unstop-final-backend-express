@@ -72,23 +72,19 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   }
 })
 
-app.post('/sendOTP', async (req: Request, res: Response) => {
-  const phone_no = req.body.phone_no
-  let check1 = await sendOTP(phone_no)
-
-  res.json({
-    msg: check1
-  })
-})
-
 app.post('/verifyOTP', async (req: Request, res: Response) => {
   const otp = req.body.otp
   const phone_no = req.body.phone_no
-  let check1 = await verifyOTP(otp, phone_no)
+  try {
+    let check1 = await verifyOTP(otp, phone_no)
 
-  res.json({
-    msg: check1
-  })
+    res.json({
+      msg: check1
+    })
+  }
+  catch (err) {
+    console.log(`Serverside error is ${err}`)
+  }
 }
 )
 
