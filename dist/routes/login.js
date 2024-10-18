@@ -45,6 +45,7 @@ function Login(phone_no, name) {
                     name: name
                 }
             });
+            return pushUsertoDB;
         }
         return checkUserExists;
     });

@@ -65,7 +65,7 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const origin = req.body.origin;
     const destination = req.body.destination;
     const travelModes = req.body.travelModes;
-    let abc = yield (0, optimumroutes_1.default)(origin, destination);
+    let abc = yield (0, optimumroutes_1.default)(origin, destination, "DRIVE");
     promises_1.console.log(abc);
     res.json({
         msg: abc

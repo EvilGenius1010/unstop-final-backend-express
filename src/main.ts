@@ -35,23 +35,40 @@ app.use((req: Request, res: Response, next: any) => {
 app.post('/login', async (req: Request, res: Response) => {
   const phone_no = req.body.phone_no
   const name = req.body.name
-  let statusa = await Login(phone_no, name);
+  try {
+    let statusa = await Login(phone_no, name);
 
-  res.json({
-    msg: statusa
-  })
+    res.json({
+      msg: statusa
+    })
+  }
+
+  catch (err) {
+    console.log(err)
+    res.json({
+      msg: `Serverside Error occurred ${err}`
+    })
+  }
 })
 
 app.post('/optimumroutes', async (req: Request, res: Response) => {
   const origin = req.body.origin;
   const destination = req.body.destination
   const travelModes = req.body.travelModes
-  let abc = await GetOptimumRoutes(origin, destination)
+  try {
+    let abc = await GetOptimumRoutes(origin, destination, "DRIVE")
 
-  console.log(abc)
-  res.json({
-    msg: abc
-  })
+    console.log(abc)
+    res.json({
+      msg: abc
+    })
+  }
+  catch (err) {
+    console.log(err)
+    res.json({
+      msg: `Serverside Error occurred ${err}`
+    })
+  }
 })
 
 app.post('/sendOTP', async (req: Request, res: Response) => {
@@ -74,6 +91,11 @@ app.post('/verifyOTP', async (req: Request, res: Response) => {
 }
 )
 
+
+// app.post({
+//
+// })
+//
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`)
 })

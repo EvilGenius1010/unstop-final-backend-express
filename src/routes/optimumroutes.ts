@@ -1,6 +1,6 @@
 const COMPUTEROUTESAPI = "https://routes.googleapis.com/directions/v2:computeRoutes"
 import axios from "axios"
-export default async function GetOptimumRoutes(origin: string, destination: string, travelMode?: string) {
+export default async function GetOptimumRoutes(origin: string, destination: string, travelMode: string) {
   let reqbody;
   travelMode != "TRANSIT" ? reqbody = {
     origin: {
@@ -44,7 +44,61 @@ export default async function GetOptimumRoutes(origin: string, destination: stri
 export async function findNearestMetroStation() {
   // const
 
-  const purpleLineMetroStns = ["Nagasandra", "Dasarahalli", "Jalahalli", "Peenya INdustry", "Peenya", "Goreguntepalya", "Yeshwantpur", "Sampige Road",]
+  const greenLineMetroStns = ["Nagasandra",
+    "Dasarahalli",
+    "Jalahalli",
+    "Peenya INdustry",
+    "Peenya",
+    "Goreguntepalya",
+    "Yeshwantpur",
+    "Sandal Soap Factory",
+    "Mahalakshmi",
+    " Rajajinagar",
+    "Kuvempu Road",
+    "Srirampura",
+    "Sampige Road",
+    "Nadaprabhu Kempegowda Station",
+    "Chickpet",
+    "Krishnarajendra Market",
+    "National College",
+    "Lalbagh",
+    "South End Circle",
+    "Jayanagara",
+    "Rashtreeya Vidyalaya Road",
+    "Banashankari",
+    "Jayaprakash Nagara",
+    "Yelachenahalli",
+    "Konanakunte Cross",
+    "Doddakallasandra",
+    "Vajarahalli",
+    "Talaghattapura",
+    "Silk Institute"]
+
+  const purpleLineMetroStns = [
+    "Baiyappanahalli",
+    "Malleswaram",
+    "Trinity Circle",
+    "MG Road",
+    "Cubbon Park",
+    "Nimbana Park",
+    "Vasanthapura",
+    "HAL",
+    "Indiranagar",
+    "Kalyan Nagar",
+    "Swami Vivekananda Road",
+    "Hebbal",
+    "Kasturi Nagar",
+    "Nagawara",
+    "Koppal",
+    "Banjara Hills",
+    "Hennur Road",
+    "Jaibhim Nagar",
+    "Hennur",
+    "Silk Institute"
+  ];
+
+
+
 }
 
 

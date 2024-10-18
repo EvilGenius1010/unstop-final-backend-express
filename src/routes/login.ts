@@ -22,7 +22,12 @@ export default async function Login(phone_no: string, name: string) {
       name: name
     }
   })
-  if (checkUserExists == null) {
+
+  if (checkUserExists) {
+    return { msg: "user already exists" }
+
+  }
+  else if (checkUserExists == null) {
     const pushUsertoDB = await prisma.user.create({
 
       data: {
@@ -31,9 +36,10 @@ export default async function Login(phone_no: string, name: string) {
         name: name
       }
     })
+    return pushUsertoDB
+
   }
 
-  return checkUserExists
 
 }
 

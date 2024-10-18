@@ -18,7 +18,8 @@ const COMPUTEROUTESAPI = "https://routes.googleapis.com/directions/v2:computeRou
 const axios_1 = __importDefault(require("axios"));
 function GetOptimumRoutes(origin, destination, travelMode) {
     return __awaiter(this, void 0, void 0, function* () {
-        const reqbody = {
+        let reqbody;
+        travelMode != "TRANSIT" ? reqbody = {
             origin: {
                 address: origin
             },
@@ -28,6 +29,21 @@ function GetOptimumRoutes(origin, destination, travelMode) {
             travelMode: "DRIVE",
             languageCode: "en-US",
             units: "IMPERIAL",
+            routingPreference: "TRAFFIC_AWARE",
+            computeAlternativeRoutes: true
+        } : reqbody = {
+            origin: {
+                address: origin
+            },
+            destination: {
+                address: destination
+            },
+            travelMode: "DRIVE",
+            languageCode: "en-US",
+            units: "IMPERIAL",
+            // departureTime:,
+            // arrivalTime:,
+            routingPreference: "TRAFFIC_AWARE",
             computeAlternativeRoutes: true
         };
         const getres = yield axios_1.default.post(COMPUTEROUTESAPI, reqbody, {
@@ -43,6 +59,56 @@ function GetOptimumRoutes(origin, destination, travelMode) {
 function findNearestMetroStation() {
     return __awaiter(this, void 0, void 0, function* () {
         // const
-        const purpleLineMetroStns = ["Nagasandra", "Dasarahalli", "Jalahalli", "Peenya INdustry", "Peenya", "Goreguntepalya", "Yeshwantpur", "Sampige Road",];
+        const greenLineMetroStns = ["Nagasandra",
+            "Dasarahalli",
+            "Jalahalli",
+            "Peenya INdustry",
+            "Peenya",
+            "Goreguntepalya",
+            "Yeshwantpur",
+            "Sandal Soap Factory",
+            "Mahalakshmi",
+            " Rajajinagar",
+            "Kuvempu Road",
+            "Srirampura",
+            "Sampige Road",
+            "Nadaprabhu Kempegowda Station",
+            "Chickpet",
+            "Krishnarajendra Market",
+            "National College",
+            "Lalbagh",
+            "South End Circle",
+            "Jayanagara",
+            "Rashtreeya Vidyalaya Road",
+            "Banashankari",
+            "Jayaprakash Nagara",
+            "Yelachenahalli",
+            "Konanakunte Cross",
+            "Doddakallasandra",
+            "Vajarahalli",
+            "Talaghattapura",
+            "Silk Institute"];
+        const purpleLineMetroStns = [
+            "Baiyappanahalli",
+            "Malleswaram",
+            "Trinity Circle",
+            "MG Road",
+            "Cubbon Park",
+            "Nimbana Park",
+            "Vasanthapura",
+            "HAL",
+            "Indiranagar",
+            "Kalyan Nagar",
+            "Swami Vivekananda Road",
+            "Hebbal",
+            "Kasturi Nagar",
+            "Nagawara",
+            "Koppal",
+            "Banjara Hills",
+            "Hennur Road",
+            "Jaibhim Nagar",
+            "Hennur",
+            "Silk Institute"
+        ];
     });
 }
