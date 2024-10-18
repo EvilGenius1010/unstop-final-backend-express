@@ -19,7 +19,7 @@ export default async function Login(phone_no: string, name: string) {
   const checkUserExists = await prisma.user.findUnique({
     where: {
       phone_no: phone_no,
-      name: name
+
     }
   })
 
