@@ -57,7 +57,7 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   const destination = req.body.destination
   const travelModes = req.body.travelModes
   try {
-    let abc = await GetOptimumRoutes(origin, destination, "DRIVE")
+    let abc = await GetOptimumRoutes(origin, destination, travelModes)
 
     console.log(abc)
     res.json({

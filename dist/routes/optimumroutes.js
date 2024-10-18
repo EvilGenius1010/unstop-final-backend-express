@@ -16,36 +16,42 @@ exports.default = GetOptimumRoutes;
 exports.findNearestMetroStation = findNearestMetroStation;
 const COMPUTEROUTESAPI = "https://routes.googleapis.com/directions/v2:computeRoutes";
 const axios_1 = __importDefault(require("axios"));
-function GetOptimumRoutes(origin, destination, travelMode) {
+function GetOptimumRoutes(origin, destination, travelModes) {
     return __awaiter(this, void 0, void 0, function* () {
         let reqbody;
-        travelMode != "TRANSIT" ? reqbody = {
-            origin: {
-                address: origin
-            },
-            destination: {
-                address: destination
-            },
-            travelMode: "DRIVE",
-            languageCode: "en-US",
-            units: "IMPERIAL",
-            routingPreference: "TRAFFIC_AWARE",
-            computeAlternativeRoutes: true
-        } : reqbody = {
-            origin: {
-                address: origin
-            },
-            destination: {
-                address: destination
-            },
-            travelMode: "DRIVE",
-            languageCode: "en-US",
-            units: "IMPERIAL",
-            // departureTime:,
-            // arrivalTime:,
-            routingPreference: "TRAFFIC_AWARE",
-            computeAlternativeRoutes: true
-        };
+        if (travelModes == "TRANSIT" || travelModes == "WALK") {
+            reqbody = {
+                origin: {
+                    address: origin
+                },
+                destination: {
+                    address: destination
+                },
+                travelMode: travelModes,
+                languageCode: "en-US",
+                units: "IMPERIAL",
+                // departureTime:,
+                // arrivalTime:,
+            };
+        }
+        else if (travelModes == "DRIVE" || travelModes == "TWO_WHEELER") {
+            reqbody = {
+                origin: {
+                    address: origin
+                },
+                destination: {
+                    address: destination
+                },
+                travelMode: travelModes,
+                languageCode: "en-US",
+                units: "IMPERIAL",
+                // departureTime:,
+                // arrivalTime:,
+                routingPreference: "TRAFFIC_AWARE",
+                computeAlternativeRoutes: true
+            };
+        }
+        console.log(reqbody);
         const getres = yield axios_1.default.post(COMPUTEROUTESAPI, reqbody, {
             headers: {
                 "X-Goog-FieldMask": "routes.duration,routes.distanceMeters,routes.polyline",
