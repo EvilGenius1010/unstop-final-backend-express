@@ -35,7 +35,6 @@ function Login(phone_no, name) {
         const checkUserExists = yield prisma_1.default.user.findUnique({
             where: {
                 phone_no: phone_no,
-                name: name
             }
         });
         if (checkUserExists) {

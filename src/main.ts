@@ -97,7 +97,10 @@ app.post('/getparking', async (req: Request, res: Response) => {
   const location = req.body.location
   const radius = req.body.radius
   try {
-    getParkingSpots(location, radius)
+    const getParking = await getParkingSpots(location, radius)
+    res.json({
+      msg: getParking
+    })
   } catch (err) {
     console.log(`Serverside error is ${err}`)
   }

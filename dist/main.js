@@ -41,6 +41,7 @@ const PORT = process.env.PORT || 3000;
 const login_1 = __importStar(require("./routes/login"));
 const optimumroutes_1 = __importDefault(require("./routes/optimumroutes"));
 const promises_1 = require("node:inspector/promises");
+const googleparking_1 = __importDefault(require("./routes/googleparking"));
 app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -103,6 +104,17 @@ app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function*
     });
 }));
 app.post('/getparking', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const location = req.body.location;
+    const radius = req.body.radius;
+    try {
+        const getParking = yield (0, googleparking_1.default)(location, radius);
+        res.json({
+            msg: getParking
+        });
+    }
+    catch (err) {
+        promises_1.console.log(`Serverside error is ${err}`);
+    }
 }));
 app.listen(PORT, () => {
     promises_1.console.log(`Listening on port ${PORT}`);
