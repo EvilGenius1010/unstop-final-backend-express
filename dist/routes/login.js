@@ -38,6 +38,7 @@ function Login(phone_no, name) {
             }
         });
         if (checkUserExists) {
+            let checkOTPsent = yield sendOTP(phone_no);
             return { msg: "user already exists" };
         }
         else {
@@ -47,6 +48,7 @@ function Login(phone_no, name) {
                     name: name
                 }
             });
+            sendOTP(phone_no);
             return pushUsertoDB;
         }
     });
@@ -67,7 +69,7 @@ function sendOTP(phone_no) {
             .services(SERVICE_SID)
             .verifications.create({
             channel: "sms",
-            to: phone_no,
+            to: `+91${phone_no}`,
         });
         console.log(otpResponse);
         return otpResponse.body;
@@ -79,7 +81,7 @@ function verifyOTP(otp, phone_no) {
             .services(SERVICE_SID)
             .verificationChecks.create({
             code: otp,
-            to: phone_no,
+            to: `+91${phone_no}`,
         });
         console.log(verificationCheck.status);
         return verificationCheck.status;

@@ -24,8 +24,8 @@ export default async function Login(phone_no: string, name: string) {
   })
 
   if (checkUserExists) {
+    let checkOTPsent = await sendOTP(phone_no)
     return { msg: "user already exists" }
-
   }
   else {
     const pushUsertoDB = await prisma.user.create({
@@ -36,6 +36,7 @@ export default async function Login(phone_no: string, name: string) {
         name: name
       }
     })
+    sendOTP(phone_no)
     return pushUsertoDB
 
   }
@@ -59,7 +60,7 @@ export async function sendOTP(phone_no: string) {
     .services(SERVICE_SID)
     .verifications.create({
       channel: "sms",
-      to: phone_no,
+      to: `+91${phone_no}`,
     });
   console.log(otpResponse)
   return otpResponse.body
@@ -72,7 +73,7 @@ export async function verifyOTP(otp: string, phone_no: string) {
     .services(SERVICE_SID)
     .verificationChecks.create({
       code: otp,
-      to: phone_no,
+      to: `+91${phone_no}`,
     });
 
   console.log(verificationCheck.status);

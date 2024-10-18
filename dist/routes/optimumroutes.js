@@ -51,7 +51,6 @@ function GetOptimumRoutes(origin, destination, travelModes) {
                 computeAlternativeRoutes: true
             };
         }
-        console.log(reqbody);
         const getres = yield axios_1.default.post(COMPUTEROUTESAPI, reqbody, {
             headers: {
                 "X-Goog-FieldMask": "routes.duration,routes.distanceMeters,routes.polyline",
