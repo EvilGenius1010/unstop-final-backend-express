@@ -92,10 +92,13 @@ app.post('/verifyOTP', async (req: Request, res: Response) => {
 )
 
 
-// app.post({
-//
-// })
-//
+app.post('/getparking', async (req: Request, res: Response) => {
+
+
+}
+
+)
+
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`)
 })

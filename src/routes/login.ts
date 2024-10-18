@@ -27,7 +27,7 @@ export default async function Login(phone_no: string, name: string) {
     return { msg: "user already exists" }
 
   }
-  else if (checkUserExists == null) {
+  else {
     const pushUsertoDB = await prisma.user.create({
 
       data: {

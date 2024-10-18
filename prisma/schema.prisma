@@ -14,6 +14,6 @@ datasource db {
 }
 
 model User {
-  phone_no String @id @unique
+  phone_no String @id
   name     String
 }

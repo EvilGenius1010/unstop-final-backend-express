@@ -38,7 +38,10 @@ function Login(phone_no, name) {
                 name: name
             }
         });
-        if (checkUserExists == null) {
+        if (checkUserExists) {
+            return { msg: "user already exists" };
+        }
+        else {
             const pushUsertoDB = yield prisma_1.default.user.create({
                 data: {
                     phone_no: phone_no,
@@ -47,7 +50,6 @@ function Login(phone_no, name) {
             });
             return pushUsertoDB;
         }
-        return checkUserExists;
     });
 }
 function sendOTP(phone_no) {

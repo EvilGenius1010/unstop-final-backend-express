@@ -56,20 +56,36 @@ app.use((req, res, next) => {
 app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const phone_no = req.body.phone_no;
     const name = req.body.name;
-    let statusa = yield (0, login_1.default)(phone_no, name);
-    res.json({
-        msg: statusa
-    });
+    try {
+        let statusa = yield (0, login_1.default)(phone_no, name);
+        res.json({
+            msg: statusa
+        });
+    }
+    catch (err) {
+        promises_1.console.log(err);
+        res.json({
+            msg: `Serverside Error occurred ${err}`
+        });
+    }
 }));
 app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const origin = req.body.origin;
     const destination = req.body.destination;
     const travelModes = req.body.travelModes;
-    let abc = yield (0, optimumroutes_1.default)(origin, destination, "DRIVE");
-    promises_1.console.log(abc);
-    res.json({
-        msg: abc
-    });
+    try {
+        let abc = yield (0, optimumroutes_1.default)(origin, destination, "DRIVE");
+        promises_1.console.log(abc);
+        res.json({
+            msg: abc
+        });
+    }
+    catch (err) {
+        promises_1.console.log(err);
+        res.json({
+            msg: `Serverside Error occurred ${err}`
+        });
+    }
 }));
 app.post('/sendOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const phone_no = req.body.phone_no;
@@ -85,6 +101,8 @@ app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function*
     res.json({
         msg: check1
     });
+}));
+app.post('/getparking', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 app.listen(PORT, () => {
     promises_1.console.log(`Listening on port ${PORT}`);
