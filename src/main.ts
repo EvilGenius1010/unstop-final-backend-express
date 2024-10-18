@@ -5,6 +5,7 @@ import Login, { sendOTP, verifyOTP } from "./routes/login"
 import { Request, Response } from "express"
 import GetOptimumRoutes from "./routes/optimumroutes"
 import { console } from "node:inspector/promises"
+import getParkingSpots from "./routes/googleparking"
 app.use(express.json())
 
 app.use((req: Request, res: Response, next: any) => {
@@ -93,7 +94,13 @@ app.post('/verifyOTP', async (req: Request, res: Response) => {
 
 
 app.post('/getparking', async (req: Request, res: Response) => {
-
+  const location = req.body.location
+  const radius = req.body.radius
+  try {
+    getParkingSpots(location, radius)
+  } catch (err) {
+    console.log(`Serverside error is ${err}`)
+  }
 
 }
 
