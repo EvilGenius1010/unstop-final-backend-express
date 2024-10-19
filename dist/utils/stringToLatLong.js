@@ -16,7 +16,9 @@ exports.default = ConvertAddrType;
 const axios_1 = __importDefault(require("axios"));
 function ConvertAddrType(location) {
     return __awaiter(this, void 0, void 0, function* () {
-        let addrconversion = yield axios_1.default.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env.GCP_MAPS_API}`);
-        return addrconversion;
+        const encodedLocation = encodeURIComponent(location);
+        let addrconversion = yield axios_1.default.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodedLocation}&key=${process.env.GCP_MAPS_API}`);
+        //@ts-ignore
+        return addrconversion === null || addrconversion === void 0 ? void 0 : addrconversion.results;
     });
 }

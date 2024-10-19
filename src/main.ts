@@ -7,6 +7,7 @@ import GetOptimumRoutes from "./routes/optimumroutes"
 import { console } from "node:inspector/promises"
 import getParkingSpots from "./routes/googleparking"
 import ConvertAddrType from "./utils/stringToLatLong"
+import axios from "axios"
 import findNearestStn, { calculateMetroRoutes } from "./routes/neareststn"
 const geohash = require('ngeohash');
 
@@ -102,7 +103,8 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   const travelModes = req.body.travelModes
   try {
     let abc = await GetOptimumRoutes(origin, destination, travelModes)
-    // let travelTimeMetro = calculateMetroRoutes(origin, destination)
+    let travelTimeMetro = calculateMetroRoutes(origin, destination)
+    let nearestMetroToOrigin = await axios.post("https://unstop-final-backend.onrender.com/neareststn", {})
     console.log(abc)
     res.json({
       msg: abc
@@ -116,21 +118,21 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   }
 })
 
-app.post('/neareststn', async (req: Request, res: Response) => {
-  const lat = req.body.lat
-  const long = req.body.long
-
-  try {
-    let neareststn = await findNearestStn(lat, long)
-    res.json({
-      msg: neareststn
-    })
-
-  } catch (err) {
-    console.log(`Serverside error ${err}`)
-  }
-})
-
+// app.post('/neareststn', async (req: Request, res: Response) => {
+//   const lat = req.body.lat
+//   const long = req.body.long
+//
+//   try {
+//     let neareststn = await findNearestStn(lat, long)
+//     res.json({
+//       msg: neareststn
+//     })
+//
+//   } catch (err) {
+//     console.log(`Serverside error ${err}`)
+//   }
+// })
+//
 
 
 app.post('/verifyOTP', async (req: Request, res: Response) => {
@@ -212,7 +214,7 @@ app.post('/verifyOTP', async (req: Request, res: Response) => {
 
 
 app.post('/convertaddr', async (req: Request, res: Response) => {
-  const addr = req.body.addr
+  const addr = req.body.address
   try {
     const getLatLongitude = await ConvertAddrType(addr)
     res.json({

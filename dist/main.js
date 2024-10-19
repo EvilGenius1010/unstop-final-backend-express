@@ -42,6 +42,9 @@ const login_1 = __importStar(require("./routes/login"));
 const optimumroutes_1 = __importDefault(require("./routes/optimumroutes"));
 const promises_1 = require("node:inspector/promises");
 const googleparking_1 = __importDefault(require("./routes/googleparking"));
+const stringToLatLong_1 = __importDefault(require("./utils/stringToLatLong"));
+const axios_1 = __importDefault(require("axios"));
+const neareststn_1 = __importStar(require("./routes/neareststn"));
 const geohash = require('ngeohash');
 const GEOHASH_PRECISION = 6;
 app.use(express.json());
@@ -97,7 +100,8 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const travelModes = req.body.travelModes;
     try {
         let abc = yield (0, optimumroutes_1.default)(origin, destination, travelModes);
-        // let travelTimeMetro = calculateMetroRoutes(origin, destination)
+        let travelTimeMetro = (0, neareststn_1.calculateMetroRoutes)(origin, destination);
+        let nearestMetroToOrigin = yield axios_1.default.post("https://unstop-final-backend.onrender.com/neareststn", {});
         promises_1.console.log(abc);
         res.json({
             msg: abc
@@ -110,21 +114,19 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 }));
-// app.post('/neareststn', async (req: Request, res: Response) => {
-//   const lat = req.body.lat
-//   const long = req.body.long
-//
-//   try {
-//     let neareststn = await findNearestStn(lat, long)
-//     res.json({
-//       msg: neareststn
-//     })
-//
-//   } catch (err) {
-//     console.log(`Serverside error ${err}`)
-//   }
-// })
-//
+app.post('/neareststn', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const lat = req.body.lat;
+    const long = req.body.long;
+    try {
+        let neareststn = yield (0, neareststn_1.default)(lat, long);
+        res.json({
+            msg: neareststn
+        });
+    }
+    catch (err) {
+        promises_1.console.log(`Serverside error ${err}`);
+    }
+}));
 app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const otp = req.body.otp;
     const phone_no = req.body.phone_no;
@@ -139,7 +141,9 @@ app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 }));
 // app.post('/updatelocation', express.json(), async (req: Request, res: Response) => {
-//   const { userId, latitude, longitude } = req.body;
+//   const phone_no = req.body.phone_no
+//   const latitude = req.body.latitude
+//   const longitude = req.body.longitude
 //   const userGeohash = geohash.encode(latitude, longitude, GEOHASH_PRECISION);
 //
 //   try {
@@ -147,11 +151,11 @@ app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function*
 //     await client.geoAdd('user_locations', {
 //       longitude,
 //       latitude,
-//       member: userId
+//       member: phone_no
 //     });
 //
 //     // Store user geohash for faster lookups
-//     await client.hSet('user_geohashes', userId, userGeohash);
+//     await client.hSet('user_geohashes', phone_no, userGeohash);
 //
 //     res.json({ message: 'Location updated successfully' });
 //   } catch (error) {
@@ -196,20 +200,18 @@ app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function*
 //     res.status(500).json({ error: 'Failed to find nearby users' });
 //   }
 // });
-//
-//
-// app.post('/convertaddr', async (req: Request, res: Response) => {
-//   const addr = req.body.addr
-//   try {
-//     const getLatLongitude = await ConvertAddrType(addr)
-//     res.json({
-//       msg: getLatLongitude
-//     })
-//   } catch (err) {
-//     console.log(`Serverside error is ${err}`)
-//   }
-// })
-//
+app.post('/convertaddr', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const addr = req.body.address;
+    try {
+        const getLatLongitude = yield (0, stringToLatLong_1.default)(addr);
+        res.json({
+            msg: getLatLongitude
+        });
+    }
+    catch (err) {
+        promises_1.console.log(`Serverside error is ${err}`);
+    }
+}));
 app.post('/getparking', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const location = req.body.location;
     const radius = req.body.radius;
