@@ -103,8 +103,8 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   const travelModes = req.body.travelModes
   try {
     let abc = await GetOptimumRoutes(origin, destination, travelModes)
-    let travelTimeMetro = calculateMetroRoutes(origin, destination)
-    let nearestMetroToOrigin = await axios.post("https://unstop-final-backend.onrender.com/neareststn", {})
+    // let travelTimeMetro = calculateMetroRoutes(origin, destination)
+    // let nearestMetroToOrigin = await axios.post("https://unstop-final-backend.onrender.com/neareststn", {})
     console.log(abc)
     res.json({
       msg: abc
