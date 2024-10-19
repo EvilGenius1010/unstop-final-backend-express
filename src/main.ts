@@ -49,34 +49,34 @@ app.use((req: Request, res: Response, next: any) => {
 });
 
 
-const { createClient } = require('redis');
-
-const client = createClient({
-  password: process.env.REDIS_CLOUD_API_KEY,
-  socket: {
-    host: 'redis-16379.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
-    port: 16379
-  }
-});
-
-
-try {
-
-  client.on('error', (err: any) => console.log('Redis Client Error', err));
-
-  // Connect to Redis
-  (async () => {
-    await client.connect();
-    console.log("HI")
-  })();
-
-} catch (err) {
-  console.log(`Error with starting redis is ${err}`)
-}
-
-
-
-
+// const { createClient } = require('redis');
+//
+// const client = createClient({
+//   password: process.env.REDIS_CLOUD_API_KEY,
+//   socket: {
+//     host: 'redis-16379.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+//     port: 16379
+//   }
+// });
+//
+//
+// try {
+//
+//   client.on('error', (err: any) => console.log('Redis Client Error', err));
+//
+//   // Connect to Redis
+//   (async () => {
+//     await client.connect();
+//     console.log("HI")
+//   })();
+//
+// } catch (err) {
+//   console.log(`Error with starting redis is ${err}`)
+// }
+//
+//
+//
+//
 
 app.post('/login', async (req: Request, res: Response) => {
   const phone_no = req.body.phone_no

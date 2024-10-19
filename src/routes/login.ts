@@ -15,32 +15,34 @@ export default async function Login(phone_no: string, name: string) {
   //   if (checkUserExists == null) {
   //     const pushUsertoDB = await prisma.user.create(phone_no)
   //   }
-
-  const checkUserExists = await prisma.user.findUnique({
-    where: {
-      phone_no: phone_no,
-
-    }
-  })
-
-  if (checkUserExists) {
-    let checkOTPsent = await sendOTP(phone_no)
-    return { msg: "user already exists" }
-  }
-  else {
-    const pushUsertoDB = await prisma.user.create({
-
-      data: {
-
+  try {
+    const checkUserExists = await prisma.user.findUnique({
+      where: {
         phone_no: phone_no,
-        name: name
+
       }
     })
-    sendOTP(phone_no)
-    return pushUsertoDB
 
+    if (checkUserExists) {
+      let checkOTPsent = await sendOTP(phone_no)
+      return { msg: "user already exists" }
+    }
+    else {
+      const pushUsertoDB = await prisma.user.create({
+
+        data: {
+
+          phone_no: phone_no,
+          name: name
+        }
+      })
+      sendOTP(phone_no)
+      return pushUsertoDB
+
+    }
+  } catch (err) {
+    console.log(`Serverside error is ${err}`)
   }
-
 
 }
 
@@ -55,28 +57,35 @@ export async function sendOTP(phone_no: string) {
   //   .then((message: any) => console.log(message.sid));
   // console.log(sendOTP.body)
   // return sendOTP.body
+  try {
 
-  const otpResponse = await client.verify.v2
-    .services(SERVICE_SID)
-    .verifications.create({
-      channel: "sms",
-      to: `+91${phone_no}`,
-    });
-  console.log(otpResponse)
-  return otpResponse.body
-
+    const otpResponse = await client.verify.v2
+      .services(SERVICE_SID)
+      .verifications.create({
+        channel: "sms",
+        to: `+91${phone_no}`,
+      });
+    console.log(otpResponse)
+    return otpResponse.body
+  } catch (err) {
+    console.log(`Error is ${err}`)
+  }
 }
 
 
 export async function verifyOTP(otp: string, phone_no: string) {
-  const verificationCheck = await client.verify.v2
-    .services(SERVICE_SID)
-    .verificationChecks.create({
-      code: otp,
-      to: `+91${phone_no}`,
-    });
+  try {
+    const verificationCheck = await client.verify.v2
+      .services(SERVICE_SID)
+      .verificationChecks.create({
+        code: otp,
+        to: `+91${phone_no}`,
+      });
 
-  console.log(verificationCheck.status);
-  return verificationCheck.status
+    console.log(verificationCheck.status);
+    return verificationCheck.status
+  } catch (err) {
+    console.log(`Error is ${err}`)
+  }
 
 }
