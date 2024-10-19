@@ -39,9 +39,9 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const login_1 = __importStar(require("./routes/login"));
+const optimumroutes_1 = __importDefault(require("./routes/optimumroutes"));
 const promises_1 = require("node:inspector/promises");
 const googleparking_1 = __importDefault(require("./routes/googleparking"));
-const neareststn_1 = require("./routes/neareststn");
 const geohash = require('ngeohash');
 const GEOHASH_PRECISION = 6;
 app.use(express.json());
@@ -69,6 +69,7 @@ try {
     // Connect to Redis
     (() => __awaiter(void 0, void 0, void 0, function* () {
         yield client.connect();
+        promises_1.console.log("HI");
     }))();
 }
 catch (err) {
@@ -95,11 +96,11 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const destination = req.body.destination;
     const travelModes = req.body.travelModes;
     try {
-        // let abc = await GetOptimumRoutes(origin, destination, travelModes)
-        let travelTimeMetro = (0, neareststn_1.calculateMetroRoutes)(origin, destination);
-        // console.log(abc)
+        let abc = yield (0, optimumroutes_1.default)(origin, destination, travelModes);
+        // let travelTimeMetro = calculateMetroRoutes(origin, destination)
+        promises_1.console.log(abc);
         res.json({
-            msg: travelTimeMetro
+            msg: abc
         });
     }
     catch (err) {
