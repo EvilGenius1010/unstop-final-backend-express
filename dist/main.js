@@ -41,8 +41,7 @@ const PORT = process.env.PORT || 3000;
 const login_1 = __importStar(require("./routes/login"));
 const promises_1 = require("node:inspector/promises");
 const googleparking_1 = __importDefault(require("./routes/googleparking"));
-const stringToLatLong_1 = __importDefault(require("./utils/stringToLatLong"));
-const neareststn_1 = __importStar(require("./routes/neareststn"));
+const neareststn_1 = require("./routes/neareststn");
 const geohash = require('ngeohash');
 const GEOHASH_PRECISION = 6;
 app.use(express.json());
@@ -110,19 +109,21 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 }));
-app.post('/neareststn', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const lat = req.body.lat;
-    const long = req.body.long;
-    try {
-        let neareststn = yield (0, neareststn_1.default)(lat, long);
-        res.json({
-            msg: neareststn
-        });
-    }
-    catch (err) {
-        promises_1.console.log(`Serverside error ${err}`);
-    }
-}));
+// app.post('/neareststn', async (req: Request, res: Response) => {
+//   const lat = req.body.lat
+//   const long = req.body.long
+//
+//   try {
+//     let neareststn = await findNearestStn(lat, long)
+//     res.json({
+//       msg: neareststn
+//     })
+//
+//   } catch (err) {
+//     console.log(`Serverside error ${err}`)
+//   }
+// })
+//
 app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const otp = req.body.otp;
     const phone_no = req.body.phone_no;
@@ -136,69 +137,78 @@ app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function*
         promises_1.console.log(`Serverside error is ${err}`);
     }
 }));
-app.post('/updatelocation', express.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, latitude, longitude } = req.body;
-    const userGeohash = geohash.encode(latitude, longitude, GEOHASH_PRECISION);
-    try {
-        // Store user location using Redis GEOADD
-        yield client.geoAdd('user_locations', {
-            longitude,
-            latitude,
-            member: userId
-        });
-        // Store user geohash for faster lookups
-        yield client.hSet('user_geohashes', userId, userGeohash);
-        res.json({ message: 'Location updated successfully' });
-    }
-    catch (error) {
-        promises_1.console.error('Error updating location:', error);
-        res.status(500).json({ error: 'Failed to update location' });
-    }
-}));
-app.post('/nearbyusers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const latitude = req.body.latitude;
-    const longitude = req.body.longitude;
-    const radius = req.body.radius;
-    const lat = parseFloat(latitude);
-    const lon = parseFloat(longitude);
-    const rad = parseFloat(radius);
-    if (isNaN(lat) || isNaN(lon) || isNaN(rad)) {
-        return res.status(400).json({ error: 'Invalid parameters' });
-    }
-    try {
-        // Use Redis GEORADIUS to find nearby users
-        const nearbyUsers = yield client.geoRadius('user_locations', lon, lat, rad, 'km', {
-            WITHDIST: true,
-            WITHCOORD: true,
-            COUNT: 50 // Limit the number of results
-        });
-        // Format the result
-        //@ts-ignore
-        const formattedUsers = nearbyUsers.map(user => ({
-            id: user.member,
-            distance: parseFloat(user.distance),
-            latitude: user.coordinates.latitude,
-            longitude: user.coordinates.longitude
-        }));
-        res.json(formattedUsers);
-    }
-    catch (error) {
-        promises_1.console.error('Error finding nearby users:', error);
-        res.status(500).json({ error: 'Failed to find nearby users' });
-    }
-}));
-app.post('/convertaddr', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const addr = req.body.addr;
-    try {
-        const getLatLongitude = yield (0, stringToLatLong_1.default)(addr);
-        res.json({
-            msg: getLatLongitude
-        });
-    }
-    catch (err) {
-        promises_1.console.log(`Serverside error is ${err}`);
-    }
-}));
+// app.post('/updatelocation', express.json(), async (req: Request, res: Response) => {
+//   const { userId, latitude, longitude } = req.body;
+//   const userGeohash = geohash.encode(latitude, longitude, GEOHASH_PRECISION);
+//
+//   try {
+//     // Store user location using Redis GEOADD
+//     await client.geoAdd('user_locations', {
+//       longitude,
+//       latitude,
+//       member: userId
+//     });
+//
+//     // Store user geohash for faster lookups
+//     await client.hSet('user_geohashes', userId, userGeohash);
+//
+//     res.json({ message: 'Location updated successfully' });
+//   } catch (error) {
+//     console.error('Error updating location:', error);
+//     res.status(500).json({ error: 'Failed to update location' });
+//   }
+// });
+//
+//
+// app.post('/nearbyusers', async (req: Request, res: Response) => {
+//   const latitude = req.body.latitude
+//   const longitude = req.body.longitude
+//   const radius = req.body.radius;
+//   const lat = parseFloat(latitude);
+//   const lon = parseFloat(longitude);
+//   const rad = parseFloat(radius);
+//
+//   if (isNaN(lat) || isNaN(lon) || isNaN(rad)) {
+//     return res.status(400).json({ error: 'Invalid parameters' });
+//   }
+//
+//   try {
+//     // Use Redis GEORADIUS to find nearby users
+//     const nearbyUsers = await client.geoRadius('user_locations', lon, lat, rad, 'km', {
+//       WITHDIST: true,
+//       WITHCOORD: true,
+//       COUNT: 50 // Limit the number of results
+//     });
+//
+//     // Format the result
+//     //@ts-ignore
+//     const formattedUsers = nearbyUsers.map(user => ({
+//       id: user.member,
+//       distance: parseFloat(user.distance),
+//       latitude: user.coordinates.latitude,
+//       longitude: user.coordinates.longitude
+//     }));
+//
+//     res.json(formattedUsers);
+//   } catch (error) {
+//     console.error('Error finding nearby users:', error);
+//     res.status(500).json({ error: 'Failed to find nearby users' });
+//   }
+// });
+//
+//
+// app.post('/convertaddr', async (req: Request, res: Response) => {
+//   const addr = req.body.addr
+//   try {
+//     const getLatLongitude = await ConvertAddrType(addr)
+//     res.json({
+//       msg: getLatLongitude
+//     })
+//   } catch (err) {
+//     console.log(`Serverside error is ${err}`)
+//   }
+// })
+//
 app.post('/getparking', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const location = req.body.location;
     const radius = req.body.radius;

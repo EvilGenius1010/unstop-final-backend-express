@@ -229,8 +229,8 @@ function calculateMetroRoutes(origin, dest) {
         ["Nagasandra", "Peenya Industry", 2.50],
         ["Peenya Industry", "Yeshwanthpur", 4.8],
         ["Yeshwanthpur", "Sampige Road", 5.1],
-        ["Sampige Road", "Majestic", 2.0],
-        ["Majestic", "National College", 2.0],
+        ["Sampige Road", "Majestic1", 2.0],
+        ["Majestic1", "National College", 2.0],
         ["National College", "Rashtreeya Vidyalaya Road", 4.1],
         ["Rashtreeya Vidyalaya Road", "Yelachenahalli", 3.9],
         ["Yelachenahalli", "Silk Institute", 6.29]
@@ -239,8 +239,8 @@ function calculateMetroRoutes(origin, dest) {
         ["Whitefield", "Krishnarajapura", 13.71],
         ["Krishnarajapura", "Baiyappanahalli", 2.50],
         ["Baiyappanahalli", "M G Road", 6.7],
-        ["M G Road", "Majestic", 2.56],
-        ["Majestic", "Magadi Road", 5.12],
+        ["M G Road", "Majestic2", 2.56],
+        ["Majestic2", "Magadi Road", 2.56],
         ["Magadi Road", "Mysuru Road", 6.4],
         ["Mysuru Road", "Kengeri", 7.5],
         ["Kengeri", "Challaghatta", 2.05]
@@ -287,9 +287,16 @@ function calculateMetroRoutes(origin, dest) {
         }
         else {
             // For simplicity, we're assuming Majestic is the interchange point
-            const distToMajestic1 = calculateDistance(originStn, 'Majestic');
-            const distToMajestic2 = calculateDistance('Majestic', destStn);
-            return distToMajestic1 + distToMajestic2;
+            if (line1 == "green") {
+                const distToMajestic1 = calculateDistance(originStn, 'Majestic1');
+                const distToMajestic2 = calculateDistance('Majestic2', destStn);
+                return distToMajestic1 + distToMajestic2;
+            }
+            else {
+                const distToMajestic1 = calculateDistance('Majestic1', originStn);
+                const distToMajestic2 = calculateDistance(originStn, "Majestic2");
+                return distToMajestic1 + distToMajestic2;
+            }
         }
     }
     function calculateTravelTime(distance) {

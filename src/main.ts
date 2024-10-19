@@ -107,11 +107,11 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   const destination = req.body.destination
   const travelModes = req.body.travelModes
   try {
-    // let abc = await GetOptimumRoutes(origin, destination, travelModes)
-    let travelTimeMetro = calculateMetroRoutes(origin, destination)
-    // console.log(abc)
+    let abc = await GetOptimumRoutes(origin, destination, travelModes)
+    // let travelTimeMetro = calculateMetroRoutes(origin, destination)
+    console.log(abc)
     res.json({
-      msg: travelTimeMetro
+      msg: abc
     })
   }
   catch (err) {
