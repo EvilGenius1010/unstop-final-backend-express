@@ -7,7 +7,7 @@ import GetOptimumRoutes from "./routes/optimumroutes"
 import { console } from "node:inspector/promises"
 import getParkingSpots from "./routes/googleparking"
 import ConvertAddrType from "./utils/stringToLatLong"
-import findNearestStn from "./routes/neareststn"
+import findNearestStn, { calculateMetroRoutes } from "./routes/neareststn"
 const geohash = require('ngeohash');
 
 interface User {
@@ -107,11 +107,11 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   const destination = req.body.destination
   const travelModes = req.body.travelModes
   try {
-    let abc = await GetOptimumRoutes(origin, destination, travelModes)
-
-    console.log(abc)
+    // let abc = await GetOptimumRoutes(origin, destination, travelModes)
+    let travelTimeMetro = calculateMetroRoutes(origin, destination)
+    // console.log(abc)
     res.json({
-      msg: abc
+      msg: travelTimeMetro
     })
   }
   catch (err) {
@@ -155,78 +155,78 @@ app.post('/verifyOTP', async (req: Request, res: Response) => {
 }
 )
 
-app.post('/updatelocation', express.json(), async (req: Request, res: Response) => {
-  const { userId, latitude, longitude } = req.body;
-  const userGeohash = geohash.encode(latitude, longitude, GEOHASH_PRECISION);
-
-  try {
-    // Store user location using Redis GEOADD
-    await client.geoAdd('user_locations', {
-      longitude,
-      latitude,
-      member: userId
-    });
-
-    // Store user geohash for faster lookups
-    await client.hSet('user_geohashes', userId, userGeohash);
-
-    res.json({ message: 'Location updated successfully' });
-  } catch (error) {
-    console.error('Error updating location:', error);
-    res.status(500).json({ error: 'Failed to update location' });
-  }
-});
-
-
-app.post('/nearbyusers', async (req: Request, res: Response) => {
-  const latitude = req.body.latitude
-  const longitude = req.body.longitude
-  const radius = req.body.radius;
-  const lat = parseFloat(latitude);
-  const lon = parseFloat(longitude);
-  const rad = parseFloat(radius);
-
-  if (isNaN(lat) || isNaN(lon) || isNaN(rad)) {
-    return res.status(400).json({ error: 'Invalid parameters' });
-  }
-
-  try {
-    // Use Redis GEORADIUS to find nearby users
-    const nearbyUsers = await client.geoRadius('user_locations', lon, lat, rad, 'km', {
-      WITHDIST: true,
-      WITHCOORD: true,
-      COUNT: 50 // Limit the number of results
-    });
-
-    // Format the result
-    //@ts-ignore
-    const formattedUsers = nearbyUsers.map(user => ({
-      id: user.member,
-      distance: parseFloat(user.distance),
-      latitude: user.coordinates.latitude,
-      longitude: user.coordinates.longitude
-    }));
-
-    res.json(formattedUsers);
-  } catch (error) {
-    console.error('Error finding nearby users:', error);
-    res.status(500).json({ error: 'Failed to find nearby users' });
-  }
-});
-
-
-app.post('/convertaddr', async (req: Request, res: Response) => {
-  const addr = req.body.addr
-  try {
-    const getLatLongitude = await ConvertAddrType(addr)
-    res.json({
-      msg: getLatLongitude
-    })
-  } catch (err) {
-    console.log(`Serverside error is ${err}`)
-  }
-})
-
+// app.post('/updatelocation', express.json(), async (req: Request, res: Response) => {
+//   const { userId, latitude, longitude } = req.body;
+//   const userGeohash = geohash.encode(latitude, longitude, GEOHASH_PRECISION);
+//
+//   try {
+//     // Store user location using Redis GEOADD
+//     await client.geoAdd('user_locations', {
+//       longitude,
+//       latitude,
+//       member: userId
+//     });
+//
+//     // Store user geohash for faster lookups
+//     await client.hSet('user_geohashes', userId, userGeohash);
+//
+//     res.json({ message: 'Location updated successfully' });
+//   } catch (error) {
+//     console.error('Error updating location:', error);
+//     res.status(500).json({ error: 'Failed to update location' });
+//   }
+// });
+//
+//
+// app.post('/nearbyusers', async (req: Request, res: Response) => {
+//   const latitude = req.body.latitude
+//   const longitude = req.body.longitude
+//   const radius = req.body.radius;
+//   const lat = parseFloat(latitude);
+//   const lon = parseFloat(longitude);
+//   const rad = parseFloat(radius);
+//
+//   if (isNaN(lat) || isNaN(lon) || isNaN(rad)) {
+//     return res.status(400).json({ error: 'Invalid parameters' });
+//   }
+//
+//   try {
+//     // Use Redis GEORADIUS to find nearby users
+//     const nearbyUsers = await client.geoRadius('user_locations', lon, lat, rad, 'km', {
+//       WITHDIST: true,
+//       WITHCOORD: true,
+//       COUNT: 50 // Limit the number of results
+//     });
+//
+//     // Format the result
+//     //@ts-ignore
+//     const formattedUsers = nearbyUsers.map(user => ({
+//       id: user.member,
+//       distance: parseFloat(user.distance),
+//       latitude: user.coordinates.latitude,
+//       longitude: user.coordinates.longitude
+//     }));
+//
+//     res.json(formattedUsers);
+//   } catch (error) {
+//     console.error('Error finding nearby users:', error);
+//     res.status(500).json({ error: 'Failed to find nearby users' });
+//   }
+// });
+//
+//
+// app.post('/convertaddr', async (req: Request, res: Response) => {
+//   const addr = req.body.addr
+//   try {
+//     const getLatLongitude = await ConvertAddrType(addr)
+//     res.json({
+//       msg: getLatLongitude
+//     })
+//   } catch (err) {
+//     console.log(`Serverside error is ${err}`)
+//   }
+// })
+//
 
 app.post('/getparking', async (req: Request, res: Response) => {
   const location = req.body.location

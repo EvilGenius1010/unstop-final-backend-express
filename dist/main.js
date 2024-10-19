@@ -39,11 +39,12 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const login_1 = __importStar(require("./routes/login"));
-const optimumroutes_1 = __importDefault(require("./routes/optimumroutes"));
 const promises_1 = require("node:inspector/promises");
 const googleparking_1 = __importDefault(require("./routes/googleparking"));
 const stringToLatLong_1 = __importDefault(require("./utils/stringToLatLong"));
-const neareststn_1 = __importDefault(require("./routes/neareststn"));
+const neareststn_1 = __importStar(require("./routes/neareststn"));
+const geohash = require('ngeohash');
+const GEOHASH_PRECISION = 6;
 app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -56,6 +57,24 @@ app.use((req, res, next) => {
     // res.setHeader("Access-Control-Max-Age", 7200);
     next();
 });
+const { createClient } = require('redis');
+const client = createClient({
+    password: process.env.REDIS_CLOUD_API_KEY,
+    socket: {
+        host: 'redis-16379.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 16379
+    }
+});
+try {
+    client.on('error', (err) => promises_1.console.log('Redis Client Error', err));
+    // Connect to Redis
+    (() => __awaiter(void 0, void 0, void 0, function* () {
+        yield client.connect();
+    }))();
+}
+catch (err) {
+    promises_1.console.log(`Error with starting redis is ${err}`);
+}
 app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const phone_no = req.body.phone_no;
     const name = req.body.name;
@@ -77,10 +96,11 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const destination = req.body.destination;
     const travelModes = req.body.travelModes;
     try {
-        let abc = yield (0, optimumroutes_1.default)(origin, destination, travelModes);
-        promises_1.console.log(abc);
+        // let abc = await GetOptimumRoutes(origin, destination, travelModes)
+        let travelTimeMetro = (0, neareststn_1.calculateMetroRoutes)(origin, destination);
+        // console.log(abc)
         res.json({
-            msg: abc
+            msg: travelTimeMetro
         });
     }
     catch (err) {
@@ -114,6 +134,57 @@ app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (err) {
         promises_1.console.log(`Serverside error is ${err}`);
+    }
+}));
+app.post('/updatelocation', express.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId, latitude, longitude } = req.body;
+    const userGeohash = geohash.encode(latitude, longitude, GEOHASH_PRECISION);
+    try {
+        // Store user location using Redis GEOADD
+        yield client.geoAdd('user_locations', {
+            longitude,
+            latitude,
+            member: userId
+        });
+        // Store user geohash for faster lookups
+        yield client.hSet('user_geohashes', userId, userGeohash);
+        res.json({ message: 'Location updated successfully' });
+    }
+    catch (error) {
+        promises_1.console.error('Error updating location:', error);
+        res.status(500).json({ error: 'Failed to update location' });
+    }
+}));
+app.post('/nearbyusers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const latitude = req.body.latitude;
+    const longitude = req.body.longitude;
+    const radius = req.body.radius;
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+    const rad = parseFloat(radius);
+    if (isNaN(lat) || isNaN(lon) || isNaN(rad)) {
+        return res.status(400).json({ error: 'Invalid parameters' });
+    }
+    try {
+        // Use Redis GEORADIUS to find nearby users
+        const nearbyUsers = yield client.geoRadius('user_locations', lon, lat, rad, 'km', {
+            WITHDIST: true,
+            WITHCOORD: true,
+            COUNT: 50 // Limit the number of results
+        });
+        // Format the result
+        //@ts-ignore
+        const formattedUsers = nearbyUsers.map(user => ({
+            id: user.member,
+            distance: parseFloat(user.distance),
+            latitude: user.coordinates.latitude,
+            longitude: user.coordinates.longitude
+        }));
+        res.json(formattedUsers);
+    }
+    catch (error) {
+        promises_1.console.error('Error finding nearby users:', error);
+        res.status(500).json({ error: 'Failed to find nearby users' });
     }
 }));
 app.post('/convertaddr', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
