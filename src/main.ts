@@ -116,21 +116,21 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
   }
 })
 
-// app.post('/neareststn', async (req: Request, res: Response) => {
-//   const lat = req.body.lat
-//   const long = req.body.long
-//
-//   try {
-//     let neareststn = await findNearestStn(lat, long)
-//     res.json({
-//       msg: neareststn
-//     })
-//
-//   } catch (err) {
-//     console.log(`Serverside error ${err}`)
-//   }
-// })
-//
+app.post('/neareststn', async (req: Request, res: Response) => {
+  const lat = req.body.lat
+  const long = req.body.long
+
+  try {
+    let neareststn = await findNearestStn(lat, long)
+    res.json({
+      msg: neareststn
+    })
+
+  } catch (err) {
+    console.log(`Serverside error ${err}`)
+  }
+})
+
 
 
 app.post('/verifyOTP', async (req: Request, res: Response) => {
