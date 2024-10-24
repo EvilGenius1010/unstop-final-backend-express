@@ -7,9 +7,10 @@ import GetOptimumRoutes from "./routes/optimumroutes"
 import { console } from "node:inspector/promises"
 import getParkingSpots from "./routes/googleparking"
 import ConvertAddrType from "./utils/stringToLatLong"
-import axios from "axios"
 import findNearestStn, { calculateMetroRoutes } from "./routes/neareststn"
-const geohash = require('ngeohash');
+import { updateLocation } from "./routes/ridesharing"
+import { createClient } from 'redis';
+
 
 interface User {
   id: string;
@@ -19,6 +20,8 @@ interface User {
 }
 
 const GEOHASH_PRECISION = 6;
+import { neighbors } from "ngeohash"
+import { latitudeSchema, longitudeSchema, otpSchema, phoneNumberSchema } from "./utils/zod"
 
 
 
@@ -78,10 +81,75 @@ app.use((req: Request, res: Response, next: any) => {
 //
 //
 
-app.post('/login', async (req: Request, res: Response) => {
-  const phone_no = req.body.phone_no
-  const name = req.body.name
+
+
+app.post('/updatelocation', async (req: Request, res: Response) => {
   try {
+    const lat = req.body?.lat
+    const long = req.body?.long
+    const phone_no = req.body?.phone_no
+
+    phoneNumberSchema.parse(phone_no)
+    latitudeSchema.parse(lat)
+    longitudeSchema.parse(long)
+
+    const setLocation = await updateLocation(lat, long, phone_no)
+
+    res.json({
+      status: setLocation
+    })
+  } catch (err) {
+    console.log(`Error is ${err}`)
+  }
+})
+
+app.post('/getnearbyusers', async (req: Request, res: Response) => {
+  try {
+    let userno = req.body.phone_no
+    let lat = req.body.latitude
+    const long = req.body.longitude
+
+    phoneNumberSchema.parse(userno)
+    latitudeSchema.parse(lat)
+    longitudeSchema.parse(long)
+
+    const client = createClient({
+      password: 'iZfkEFkWuMuIuxTie1Fpp376YrrRjaWM',
+      socket: {
+        host: 'redis-16379.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 16379
+      }
+    });
+    await client.connect()
+
+    // const getGeohash = await client.get(userno)
+    // const getNearbyUsers = await geohash.neighbors(getGeohash)
+    // const getNearbyUsers2 = await client.geoRadius()
+
+    const member = {
+      latitude: lat,
+      longitude: long
+    }
+
+    const radius = {
+      radius: 10,
+      units: 'km'
+    }
+
+    const getNearbyUsers = await client.geoSearch("blr", member, radius)
+
+    return res.json({
+      nearbyusers: getNearbyUsers
+    })
+  } catch (err) {
+    console.log(`${err}`)
+  }
+})
+app.post('/login', async (req: Request, res: Response) => {
+  try {
+    const phone_no = req.body.phone_no
+    phoneNumberSchema.parse(phone_no)
+    const name: string = req.body.name
     let statusa = await Login(phone_no, name);
 
     res.json({
@@ -136,9 +204,12 @@ app.post('/optimumroutes', async (req: Request, res: Response) => {
 
 
 app.post('/verifyOTP', async (req: Request, res: Response) => {
-  const otp = req.body.otp
-  const phone_no = req.body.phone_no
   try {
+    const otp = req.body.otp
+    const phone_no = req.body.phone_no
+    otpSchema.parse(otp)
+    phoneNumberSchema.parse(phone_no)
+
     let check1 = await verifyOTP(otp, phone_no)
 
     res.json({
@@ -238,9 +309,7 @@ app.post('/getparking', async (req: Request, res: Response) => {
     console.log(`Serverside error is ${err}`)
   }
 
-}
-
-)
+})
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`)

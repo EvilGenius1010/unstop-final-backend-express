@@ -43,10 +43,10 @@ const optimumroutes_1 = __importDefault(require("./routes/optimumroutes"));
 const promises_1 = require("node:inspector/promises");
 const googleparking_1 = __importDefault(require("./routes/googleparking"));
 const stringToLatLong_1 = __importDefault(require("./utils/stringToLatLong"));
-const axios_1 = __importDefault(require("axios"));
-const neareststn_1 = __importStar(require("./routes/neareststn"));
+const ridesharing_1 = require("./routes/ridesharing");
 const geohash = require('ngeohash');
 const GEOHASH_PRECISION = 6;
+const redis_1 = require("redis");
 app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -59,25 +59,71 @@ app.use((req, res, next) => {
     // res.setHeader("Access-Control-Max-Age", 7200);
     next();
 });
-const { createClient } = require('redis');
-const client = createClient({
-    password: process.env.REDIS_CLOUD_API_KEY,
-    socket: {
-        host: 'redis-16379.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
-        port: 16379
+// const { createClient } = require('redis');
+//
+// const client = createClient({
+//   password: process.env.REDIS_CLOUD_API_KEY,
+//   socket: {
+//     host: 'redis-16379.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+//     port: 16379
+//   }
+// });
+//
+//
+// try {
+//
+//   client.on('error', (err: any) => console.log('Redis Client Error', err));
+//
+//   // Connect to Redis
+//   (async () => {
+//     await client.connect();
+//     console.log("HI")
+//   })();
+//
+// } catch (err) {
+//   console.log(`Error with starting redis is ${err}`)
+// }
+//
+//
+//
+//
+app.post('/updatelocation', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    try {
+        const lat = (_a = req.body) === null || _a === void 0 ? void 0 : _a.lat;
+        const long = (_b = req.body) === null || _b === void 0 ? void 0 : _b.long;
+        const phone_no = (_c = req.body) === null || _c === void 0 ? void 0 : _c.phone_no;
+        const setLocation = yield (0, ridesharing_1.updateLocation)(lat, long, phone_no);
+        res.json({
+            status: setLocation
+        });
     }
-});
-try {
-    client.on('error', (err) => promises_1.console.log('Redis Client Error', err));
-    // Connect to Redis
-    (() => __awaiter(void 0, void 0, void 0, function* () {
+    catch (err) {
+        promises_1.console.log(`Error is ${err}`);
+    }
+}));
+app.post('/getnearbyusers', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let userno = req.body.phone_no;
+        const client = (0, redis_1.createClient)({
+            password: 'iZfkEFkWuMuIuxTie1Fpp376YrrRjaWM',
+            socket: {
+                host: 'redis-16379.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+                port: 16379
+            }
+        });
         yield client.connect();
-        promises_1.console.log("HI");
-    }))();
-}
-catch (err) {
-    promises_1.console.log(`Error with starting redis is ${err}`);
-}
+        const getGeohash = yield client.get(userno);
+        const getNearbyUsers = yield geohash.neighbors(getGeohash);
+        // const getNearbyUsers2 = await client.geoRadius()
+        return res.json({
+            nearbyusers: getNearbyUsers
+        });
+    }
+    catch (err) {
+        promises_1.console.log(`${err}`);
+    }
+}));
 app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const phone_no = req.body.phone_no;
     const name = req.body.name;
@@ -100,8 +146,8 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const travelModes = req.body.travelModes;
     try {
         let abc = yield (0, optimumroutes_1.default)(origin, destination, travelModes);
-        let travelTimeMetro = (0, neareststn_1.calculateMetroRoutes)(origin, destination);
-        let nearestMetroToOrigin = yield axios_1.default.post("https://unstop-final-backend.onrender.com/neareststn", {});
+        // let travelTimeMetro = calculateMetroRoutes(origin, destination)
+        // let nearestMetroToOrigin = await axios.post("https://unstop-final-backend.onrender.com/neareststn", {})
         promises_1.console.log(abc);
         res.json({
             msg: abc
@@ -114,19 +160,21 @@ app.post('/optimumroutes', (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 }));
-app.post('/neareststn', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const lat = req.body.lat;
-    const long = req.body.long;
-    try {
-        let neareststn = yield (0, neareststn_1.default)(lat, long);
-        res.json({
-            msg: neareststn
-        });
-    }
-    catch (err) {
-        promises_1.console.log(`Serverside error ${err}`);
-    }
-}));
+// app.post('/neareststn', async (req: Request, res: Response) => {
+//   const lat = req.body.lat
+//   const long = req.body.long
+//
+//   try {
+//     let neareststn = await findNearestStn(lat, long)
+//     res.json({
+//       msg: neareststn
+//     })
+//
+//   } catch (err) {
+//     console.log(`Serverside error ${err}`)
+//   }
+// })
+//
 app.post('/verifyOTP', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const otp = req.body.otp;
     const phone_no = req.body.phone_no;

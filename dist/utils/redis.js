@@ -8,16 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ConvertAddrType;
-const axios_1 = __importDefault(require("axios"));
-function ConvertAddrType(location) {
+exports.default = createRedisClient;
+function createRedisClient() {
     return __awaiter(this, void 0, void 0, function* () {
-        const encodedLocation = encodeURIComponent(location);
-        let addrconversion = yield axios_1.default.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodedLocation}&key=${process.env.GCP_MAPS_API}`);
-        return addrconversion;
+        // return client
+        // client.on('connect', () => {
+        //   console.log('Connected to Redis');
+        // });
     });
 }

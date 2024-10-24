@@ -20,7 +20,7 @@ const accountSID = process.env.ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilio = require('twilio');
 const client = twilio(accountSID, authToken);
-const SERVICE_SID = "VAfa0e7ebb8ed5d2b72df66c7e785515d3";
+const SERVICE_SID = "VA5bcb0b3aa1dc63e26ee366f16c0da1ef";
 function Login(phone_no, name) {
     return __awaiter(this, void 0, void 0, function* () {
         //   const checkUserExists = await prisma.user.findUnique({
@@ -32,24 +32,29 @@ function Login(phone_no, name) {
         //   if (checkUserExists == null) {
         //     const pushUsertoDB = await prisma.user.create(phone_no)
         //   }
-        const checkUserExists = yield prisma_1.default.user.findUnique({
-            where: {
-                phone_no: phone_no,
-            }
-        });
-        if (checkUserExists) {
-            let checkOTPsent = yield sendOTP(phone_no);
-            return { msg: "user already exists" };
-        }
-        else {
-            const pushUsertoDB = yield prisma_1.default.user.create({
-                data: {
+        try {
+            const checkUserExists = yield prisma_1.default.user.findUnique({
+                where: {
                     phone_no: phone_no,
-                    name: name
                 }
             });
-            sendOTP(phone_no);
-            return pushUsertoDB;
+            if (checkUserExists) {
+                let checkOTPsent = yield sendOTP(phone_no);
+                return { msg: "user already exists" };
+            }
+            else {
+                const pushUsertoDB = yield prisma_1.default.user.create({
+                    data: {
+                        phone_no: phone_no,
+                        name: name
+                    }
+                });
+                let checkOTPsent = yield sendOTP(phone_no);
+                return pushUsertoDB;
+            }
+        }
+        catch (err) {
+            console.log(`Serverside error is ${err}`);
         }
     });
 }
@@ -65,25 +70,35 @@ function sendOTP(phone_no) {
         //   .then((message: any) => console.log(message.sid));
         // console.log(sendOTP.body)
         // return sendOTP.body
-        const otpResponse = yield client.verify.v2
-            .services(SERVICE_SID)
-            .verifications.create({
-            channel: "sms",
-            to: `+91${phone_no}`,
-        });
-        console.log(otpResponse);
-        return otpResponse.body;
+        try {
+            const otpResponse = yield client.verify.v2
+                .services(SERVICE_SID)
+                .verifications.create({
+                channel: "sms",
+                to: `+91${phone_no}`,
+            });
+            console.log(otpResponse);
+            return otpResponse.body;
+        }
+        catch (err) {
+            console.log(`Error is ${err}`);
+        }
     });
 }
 function verifyOTP(otp, phone_no) {
     return __awaiter(this, void 0, void 0, function* () {
-        const verificationCheck = yield client.verify.v2
-            .services(SERVICE_SID)
-            .verificationChecks.create({
-            code: otp,
-            to: `+91${phone_no}`,
-        });
-        console.log(verificationCheck.status);
-        return verificationCheck.status;
+        try {
+            const verificationCheck = yield client.verify.v2
+                .services(SERVICE_SID)
+                .verificationChecks.create({
+                code: otp,
+                to: `+91${phone_no}`,
+            });
+            console.log(verificationCheck.status);
+            return verificationCheck.status;
+        }
+        catch (err) {
+            console.log(`Error is ${err}`);
+        }
     });
 }
