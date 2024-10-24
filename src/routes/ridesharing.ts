@@ -1,4 +1,3 @@
-import createRedisClient from '../utils/redis'
 import geohash from "ngeohash"
 import { getDistance } from 'geolib';
 //

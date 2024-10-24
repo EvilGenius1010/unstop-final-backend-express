@@ -19,8 +19,6 @@ interface User {
   geohash: string;
 }
 
-const GEOHASH_PRECISION = 6;
-import { neighbors } from "ngeohash"
 import { latitudeSchema, longitudeSchema, otpSchema, phoneNumberSchema } from "./utils/zod"
 
 
@@ -136,10 +134,10 @@ app.post('/getnearbyusers', async (req: Request, res: Response) => {
       units: 'km'
     }
 
-    const getNearbyUsers = await client.geoSearch("blr", member, radius)
+    // const getNearbyUsers = await client.geoSearch("blr", member, radius)
 
     return res.json({
-      nearbyusers: getNearbyUsers
+      nearbyusers: "das"
     })
   } catch (err) {
     console.log(`${err}`)
